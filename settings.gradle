@@ -1,0 +1,13 @@
+rootProject.name = "e-commerce-be"
+include 'common-module'
+include 'security-module'
+include 'discovery-service'
+include 'gateway-service'
+include 'auth-service'
+include 'user-service'
+include 'file-service'
+include 'media-service'
+include 'product-service'
+include 'product-gallery-service'
+
+

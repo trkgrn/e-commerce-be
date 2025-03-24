@@ -1,0 +1,6 @@
+dependencies {
+    implementation libs.springBootStarterEurekaServer
+    implementation libs.springCloudDependencies
+    implementation libs.springBootStarterWeb
+    implementation libs.bootStrap
+}

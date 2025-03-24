@@ -1,0 +1,11 @@
+package com.trkgrn.common.dto.userservice.request
+
+import java.io.Serializable
+
+data class UserProfileUpdateRequest @JvmOverloads constructor(
+    var username: String? = null,
+    var firstName: String? = null,
+    var lastName: String? = null,
+    var email: String? = null,
+    var phone: String? = null
+) : Serializable

@@ -1,0 +1,18 @@
+dependencies {
+    implementation libs.springBootDataJpa
+    implementation libs.postgreSQL
+    implementation libs.springBootStarterEurekaClient
+    implementation libs.springBootValidation
+    implementation libs.springBootStarterSecurity
+    implementation libs.mapStructer
+    implementation libs.mapStructProcessor
+    annotationProcessor libs.mapStructProcessor
+    implementation libs.springCloudDependencies
+    implementation libs.bootStrap
+    implementation libs.springBootStarterWeb
+    implementation libs.springBootDataElasticSearch
+    implementation libs.springBootBatch
+
+    implementation libs.commonModule
+    implementation libs.securityModule
+}

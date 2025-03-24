@@ -1,0 +1,13 @@
+dependencies {
+    implementation libs.springCloudStarterOpenFeign
+    implementation libs.springBootStarterGateway
+    implementation libs.springBootStarterEurekaClient
+    implementation libs.springCloudDependencies
+    implementation libs.openFeign
+    implementation libs.bootStrap
+    implementation libs.commonModule
+
+    implementation libs.swaggeruiGateway
+
+
+}

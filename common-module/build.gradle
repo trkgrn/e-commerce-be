@@ -1,0 +1,7 @@
+dependencies {
+    implementation libs.jwtTokenApi
+    implementation libs.jwtTokenImpl
+    implementation libs.jwtTokenJackson
+    implementation libs.springBootStarterWeb
+    implementation libs.springCloudStarterOpenFeign
+}

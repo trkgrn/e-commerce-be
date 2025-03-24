@@ -1,0 +1,12 @@
+dependencies {
+    implementation libs.springBootStarterEurekaClient
+    implementation libs.springBootValidation
+    implementation libs.springBootDataRedis
+    implementation libs.springBootStarterSecurity
+    implementation libs.mapStructer
+    implementation libs.mapStructProcessor
+    implementation libs.springCloudDependencies
+    implementation libs.bootStrap
+    implementation libs.springBootStarterWeb
+    implementation libs.commonModule
+}

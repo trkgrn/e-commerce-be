@@ -1,0 +1,116 @@
+version: '3.6'
+
+name: ${PROJECT_NAME}
+
+volumes:
+  auth_service_redis_vlm:
+    name: '${AUTH_SERVICE_KEY}_redis_vlm'
+  user_service_postgresql_vlm:
+    name: '${USER_SERVICE_KEY}_postgresql_vlm'
+  media_service_postgresql_vlm:
+    name: '${MEDIA_SERVICE_KEY}_postgresql_vlm'
+  file_service_mongodb_vlm:
+    name: '${FILE_SERVICE_KEY}_mongodb_vlm'
+  product_service_postgresql_vlm:
+    name: '${PRODUCT_SERVICE_KEY}_postgresql_vlm'
+  product_service_elasticsearch_vlm:
+    name: '${PRODUCT_SERVICE_KEY}_elasticsearch_vlm'
+    driver: local
+  product_gallery_service_postgresql_vlm:
+    name: '${PRODUCT_GALLERY_SERVICE_KEY}_postgresql_vlm'
+
+services:
+  auth_service_redis:
+    image: 'bitnami/redis:latest'
+    container_name: '${AUTH_SERVICE_KEY}_redis'
+    ports:
+      - 127.0.0.1:${AUTH_SERVICE_REDIS_HOST_PORT}:${AUTH_SERVICE_REDIS_DOCKER_PORT}
+    volumes:
+      - auth_service_redis_vlm:/bitnami/redis/data
+    environment:
+      REDIS_PASSWORD: ${AUTH_SERVICE_REDIS_PASS}
+      REDIS_DISABLE_COMMANDS: "FLUSHDB,FLUSHALL,CONFIG"
+      REDIS_AOF_ENABLED: "no"
+
+  user_service_postgresql:
+    image: 'bitnami/postgresql:latest'
+    container_name: '${USER_SERVICE_KEY}_postgresql'
+    ports:
+      - 127.0.0.1:${USER_SERVICE_DB_HOST_PORT}:${USER_SERVICE_DB_DOCKER_PORT}
+    volumes:
+      - user_service_postgresql_vlm:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_USERNAME=${USER_SERVICE_DB_USER}
+      - POSTGRESQL_PASSWORD=${USER_SERVICE_DB_PASS}
+      - POSTGRESQL_DATABASE=${USER_SERVICE_DB_NAME}
+
+  media_service_postgresql:
+    image: 'bitnami/postgresql:latest'
+    container_name: '${MEDIA_SERVICE_KEY}_postgresql'
+    ports:
+      - 127.0.0.1:${MEDIA_SERVICE_DB_HOST_PORT}:${MEDIA_SERVICE_DB_DOCKER_PORT}
+    volumes:
+      - media_service_postgresql_vlm:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_USERNAME=${MEDIA_SERVICE_DB_USER}
+      - POSTGRESQL_PASSWORD=${MEDIA_SERVICE_DB_PASS}
+      - POSTGRESQL_DATABASE=${MEDIA_SERVICE_DB_NAME}
+
+  file_service_mongodb:
+    image: 'bitnami/mongodb:latest'
+    container_name: '${FILE_SERVICE_KEY}_mongodb'
+    ports:
+      - 127.0.0.1:${FILE_SERVICE_DB_HOST_PORT}:${FILE_SERVICE_DB_DOCKER_PORT}
+    volumes:
+      - file_service_mongodb_vlm:/bitnami/mongodb/data
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MONGODB_DATABASE=${FILE_SERVICE_DB_NAME}
+
+  product_service_postgresql:
+    image: 'bitnami/postgresql:latest'
+    container_name: '${PRODUCT_SERVICE_KEY}_postgresql'
+    ports:
+      - 127.0.0.1:${PRODUCT_SERVICE_DB_HOST_PORT}:${PRODUCT_SERVICE_DB_DOCKER_PORT}
+    volumes:
+      - product_service_postgresql_vlm:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_USERNAME=${PRODUCT_SERVICE_DB_USER}
+      - POSTGRESQL_PASSWORD=${PRODUCT_SERVICE_DB_PASS}
+      - POSTGRESQL_DATABASE=${PRODUCT_SERVICE_DB_NAME}
+
+  product_service_elasticsearch:
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:8.5.3'
+    container_name: '${PRODUCT_SERVICE_KEY}_elasticsearch'
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - product_service_elasticsearch_vlm:/usr/share/elasticsearch/data
+
+  product_service_kibana:
+    image: 'docker.elastic.co/kibana/kibana:8.5.3'
+    container_name: '${PRODUCT_SERVICE_KEY}_kibana'
+    environment:
+      - ELASTICSEARCH_HOSTS=http://product_service_elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - product_service_elasticsearch
+
+  product_gallery_service_postgresql:
+    image: 'bitnami/postgresql:latest'
+    container_name: '${PRODUCT_GALLERY_SERVICE_KEY}_postgresql'
+    ports:
+      - 127.0.0.1:${PRODUCT_GALLERY_SERVICE_DB_HOST_PORT}:${PRODUCT_GALLERY_SERVICE_DB_DOCKER_PORT}
+    volumes:
+      - product_gallery_service_postgresql_vlm:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_USERNAME=${PRODUCT_GALLERY_SERVICE_DB_USER}
+      - POSTGRESQL_PASSWORD=${PRODUCT_GALLERY_SERVICE_DB_PASS}
+      - POSTGRESQL_DATABASE=${PRODUCT_GALLERY_SERVICE_DB_NAME}
+

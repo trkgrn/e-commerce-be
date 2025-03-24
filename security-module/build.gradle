@@ -1,0 +1,6 @@
+dependencies {
+    implementation libs.springBootStarterWeb
+    implementation libs.springBootStarterSecurity
+    implementation libs.commonModule
+
+}
