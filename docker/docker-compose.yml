@@ -18,6 +18,9 @@ volumes:
     driver: local
   product_gallery_service_postgresql_vlm:
     name: '${PRODUCT_GALLERY_SERVICE_KEY}_postgresql_vlm'
+  logging_elasticsearch_vlm:
+    name: '${LOGGING_KEY}_elasticsearch_vlm'
+    driver: local
 
 services:
   auth_service_redis:
@@ -31,6 +34,8 @@ services:
       REDIS_PASSWORD: ${AUTH_SERVICE_REDIS_PASS}
       REDIS_DISABLE_COMMANDS: "FLUSHDB,FLUSHALL,CONFIG"
       REDIS_AOF_ENABLED: "no"
+    networks:
+      - commerce-network
 
   user_service_postgresql:
     image: 'bitnami/postgresql:latest'
@@ -43,6 +48,8 @@ services:
       - POSTGRESQL_USERNAME=${USER_SERVICE_DB_USER}
       - POSTGRESQL_PASSWORD=${USER_SERVICE_DB_PASS}
       - POSTGRESQL_DATABASE=${USER_SERVICE_DB_NAME}
+    networks:
+      - commerce-network
 
   media_service_postgresql:
     image: 'bitnami/postgresql:latest'
@@ -55,6 +62,8 @@ services:
       - POSTGRESQL_USERNAME=${MEDIA_SERVICE_DB_USER}
       - POSTGRESQL_PASSWORD=${MEDIA_SERVICE_DB_PASS}
       - POSTGRESQL_DATABASE=${MEDIA_SERVICE_DB_NAME}
+    networks:
+      - commerce-network
 
   file_service_mongodb:
     image: 'bitnami/mongodb:latest'
@@ -66,6 +75,8 @@ services:
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - MONGODB_DATABASE=${FILE_SERVICE_DB_NAME}
+    networks:
+      - commerce-network
 
   product_service_postgresql:
     image: 'bitnami/postgresql:latest'
@@ -78,9 +89,11 @@ services:
       - POSTGRESQL_USERNAME=${PRODUCT_SERVICE_DB_USER}
       - POSTGRESQL_PASSWORD=${PRODUCT_SERVICE_DB_PASS}
       - POSTGRESQL_DATABASE=${PRODUCT_SERVICE_DB_NAME}
+    networks:
+      - commerce-network
 
   product_service_elasticsearch:
-    image: 'docker.elastic.co/elasticsearch/elasticsearch:8.5.3'
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:8.8.0'
     container_name: '${PRODUCT_SERVICE_KEY}_elasticsearch'
     environment:
       - discovery.type=single-node
@@ -91,9 +104,11 @@ services:
       - "9300:9300"
     volumes:
       - product_service_elasticsearch_vlm:/usr/share/elasticsearch/data
+    networks:
+      - commerce-network
 
   product_service_kibana:
-    image: 'docker.elastic.co/kibana/kibana:8.5.3'
+    image: 'docker.elastic.co/kibana/kibana:8.8.0'
     container_name: '${PRODUCT_SERVICE_KEY}_kibana'
     environment:
       - ELASTICSEARCH_HOSTS=http://product_service_elasticsearch:9200
@@ -101,6 +116,8 @@ services:
       - "5601:5601"
     depends_on:
       - product_service_elasticsearch
+    networks:
+      - commerce-network
 
   product_gallery_service_postgresql:
     image: 'bitnami/postgresql:latest'
@@ -113,4 +130,57 @@ services:
       - POSTGRESQL_USERNAME=${PRODUCT_GALLERY_SERVICE_DB_USER}
       - POSTGRESQL_PASSWORD=${PRODUCT_GALLERY_SERVICE_DB_PASS}
       - POSTGRESQL_DATABASE=${PRODUCT_GALLERY_SERVICE_DB_NAME}
+    networks:
+      - commerce-network
 
+  zipkin:
+    image: openzipkin/zipkin:2.24
+    ports:
+      - "9411:9411"
+    networks:
+      - commerce-network
+
+
+  loggingElasticsearch:
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:8.8.0'
+    container_name: '${LOGGING_KEY}_elasticsearch'
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+    volumes:
+      - logging_elasticsearch_vlm:/usr/share/elasticsearch/data
+    networks:
+      - commerce-network
+
+  logging_logstash:
+    image: 'docker.elastic.co/logstash/logstash:8.8.0'
+    container_name: '${LOGGING_KEY}_logstash'
+    volumes:
+      - ./monitoring/logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./monitoring/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+    ports:
+      - "5000:5000"
+    depends_on:
+      - loggingElasticsearch
+    networks:
+      - commerce-network
+
+  logging_kibana:
+    image: 'docker.elastic.co/kibana/kibana:8.8.0'
+    container_name: '${LOGGING_KEY}_kibana'
+    environment:
+      - ELASTICSEARCH_HOSTS=http://loggingElasticsearch:9200
+    ports:
+      - "5602:5601"
+    depends_on:
+      - product_service_elasticsearch
+    networks:
+      - commerce-network
+
+networks:
+  commerce-network:
+    driver: bridge

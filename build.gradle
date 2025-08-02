@@ -51,6 +51,13 @@ allprojects {
         implementation libs.kotlinStdLib
         implementation libs.kotlinReflect
         implementation libs.jacksonModuleKotlin
+
+        implementation libs.springBootStarterActuator
+        implementation libs.zipkinReporter
+        implementation libs.micrometerTracingBridge
+        implementation libs.micrometerObservation
+        implementation libs.logstashLogbackEncoder
+
     }
     test {
         useJUnitPlatform()
