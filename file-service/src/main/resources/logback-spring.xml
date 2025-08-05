@@ -2,7 +2,7 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <springProfile name="!local">
+    <springProfile name="!dev">
         <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
             <encoder class="net.logstash.logback.encoder.LogstashEncoder">
                 <includeContext>true</includeContext>
@@ -12,7 +12,7 @@
         </appender>
     </springProfile>
 
-    <springProfile name="local">
+    <springProfile name="dev">
         <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
                 <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] %logger{36} - %msg%n</pattern>
@@ -20,8 +20,10 @@
         </appender>
     </springProfile>
 
+    <springProperty scope="context" name="logstashDestination" source="logstash.destination" defaultValue="localhost:5000"/>
+
     <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-        <destination>localhost:5000</destination>
+        <destination>${logstashDestination}</destination>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <includeContext>true</includeContext>
             <includeMdc>true</includeMdc>

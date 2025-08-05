@@ -1,0 +1,72 @@
+server:
+  port: 8080
+  forward-headers-strategy: framework
+
+eureka:
+  client:
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://discovery-service:8761/eureka/
+    instance:
+      prefer-ip-address: true
+
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      httpclient:
+        connect-timeout: 60000
+        response-timeout: 60s
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    urls:
+      - name: Auth Service
+        url: /v1/auth/v3/api-docs
+      - name: User Service
+        url: /v1/users/v3/api-docs
+      - name: Product Service
+        url: /v1/products/v3/api-docs
+      - name: Product Gallery Service
+        url: /v1/galleries/v3/api-docs
+      - name: File Service
+        url: /v1/files/v3/api-docs
+      - name: Media Service
+        url: /v1/medias/v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,loggers,httptrace
+  endpoint:
+    health:
+      show-details: always
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: "http://zipkin:9411/api/v2/spans"
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{correlationId:-}] %logger{36} - %msg%n"
+  level:
+    com.trkgrn.gatewayservice: DEBUG
+    org.springframework.cloud.sleuth: DEBUG
+    feign: DEBUG
+
+logstash:
+  destination: logging-logstash:5000

@@ -42,3 +42,4 @@ bin/
 .DS_Store
 /file-service/src/main/resources/key.json
 /.idea/
+/docker/.env

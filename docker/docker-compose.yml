@@ -3,33 +3,33 @@ version: '3.6'
 name: ${PROJECT_NAME}
 
 volumes:
-  auth_service_redis_vlm:
-    name: '${AUTH_SERVICE_KEY}_redis_vlm'
-  user_service_postgresql_vlm:
-    name: '${USER_SERVICE_KEY}_postgresql_vlm'
-  media_service_postgresql_vlm:
-    name: '${MEDIA_SERVICE_KEY}_postgresql_vlm'
-  file_service_mongodb_vlm:
-    name: '${FILE_SERVICE_KEY}_mongodb_vlm'
-  product_service_postgresql_vlm:
-    name: '${PRODUCT_SERVICE_KEY}_postgresql_vlm'
-  product_service_elasticsearch_vlm:
-    name: '${PRODUCT_SERVICE_KEY}_elasticsearch_vlm'
+  auth-service-redis-vlm:
+    name: '${AUTH_SERVICE_KEY}-redis-vlm'
+  user-service-postgresql-vlm:
+    name: '${USER_SERVICE_KEY}-postgresql-vlm'
+  media-service-postgresql-vlm:
+    name: '${MEDIA_SERVICE_KEY}-postgresql-vlm'
+  file-service-mongodb-vlm:
+    name: '${FILE_SERVICE_KEY}-mongodb-vlm'
+  product-service-postgresql-vlm:
+    name: '${PRODUCT_SERVICE_KEY}-postgresql-vlm'
+  product-service-elasticsearch-vlm:
+    name: '${PRODUCT_SERVICE_KEY}-elasticsearch-vlm'
     driver: local
-  product_gallery_service_postgresql_vlm:
-    name: '${PRODUCT_GALLERY_SERVICE_KEY}_postgresql_vlm'
-  logging_elasticsearch_vlm:
-    name: '${LOGGING_KEY}_elasticsearch_vlm'
+  product-gallery-service-postgresql-vlm:
+    name: '${PRODUCT_GALLERY_SERVICE_KEY}-postgresql-vlm'
+  logging-elasticsearch-vlm:
+    name: '${LOGGING_KEY}-elasticsearch-vlm'
     driver: local
 
 services:
-  auth_service_redis:
+  auth-service-redis:
     image: 'bitnami/redis:latest'
-    container_name: '${AUTH_SERVICE_KEY}_redis'
+    container_name: '${AUTH_SERVICE_KEY}-redis'
     ports:
       - 127.0.0.1:${AUTH_SERVICE_REDIS_HOST_PORT}:${AUTH_SERVICE_REDIS_DOCKER_PORT}
     volumes:
-      - auth_service_redis_vlm:/bitnami/redis/data
+      - auth-service-redis-vlm:/bitnami/redis/data
     environment:
       REDIS_PASSWORD: ${AUTH_SERVICE_REDIS_PASS}
       REDIS_DISABLE_COMMANDS: "FLUSHDB,FLUSHALL,CONFIG"
@@ -37,13 +37,13 @@ services:
     networks:
       - commerce-network
 
-  user_service_postgresql:
+  user-service-postgresql:
     image: 'bitnami/postgresql:latest'
-    container_name: '${USER_SERVICE_KEY}_postgresql'
+    container_name: '${USER_SERVICE_KEY}-postgresql'
     ports:
       - 127.0.0.1:${USER_SERVICE_DB_HOST_PORT}:${USER_SERVICE_DB_DOCKER_PORT}
     volumes:
-      - user_service_postgresql_vlm:/bitnami/postgresql
+      - user-service-postgresql-vlm:/bitnami/postgresql
     environment:
       - POSTGRESQL_USERNAME=${USER_SERVICE_DB_USER}
       - POSTGRESQL_PASSWORD=${USER_SERVICE_DB_PASS}
@@ -51,13 +51,13 @@ services:
     networks:
       - commerce-network
 
-  media_service_postgresql:
+  media-service-postgresql:
     image: 'bitnami/postgresql:latest'
-    container_name: '${MEDIA_SERVICE_KEY}_postgresql'
+    container_name: '${MEDIA_SERVICE_KEY}-postgresql'
     ports:
       - 127.0.0.1:${MEDIA_SERVICE_DB_HOST_PORT}:${MEDIA_SERVICE_DB_DOCKER_PORT}
     volumes:
-      - media_service_postgresql_vlm:/bitnami/postgresql
+      - media-service-postgresql-vlm:/bitnami/postgresql
     environment:
       - POSTGRESQL_USERNAME=${MEDIA_SERVICE_DB_USER}
       - POSTGRESQL_PASSWORD=${MEDIA_SERVICE_DB_PASS}
@@ -65,26 +65,27 @@ services:
     networks:
       - commerce-network
 
-  file_service_mongodb:
+  file-service-mongodb:
     image: 'bitnami/mongodb:latest'
-    container_name: '${FILE_SERVICE_KEY}_mongodb'
+    container_name: '${FILE_SERVICE_KEY}-mongodb'
     ports:
       - 127.0.0.1:${FILE_SERVICE_DB_HOST_PORT}:${FILE_SERVICE_DB_DOCKER_PORT}
     volumes:
-      - file_service_mongodb_vlm:/bitnami/mongodb/data
+      - file-service-mongodb-vlm:/bitnami/mongodb/data
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - MONGODB_DATABASE=${FILE_SERVICE_DB_NAME}
+      - GCP_BUCKET_NAME=${FILE_SERVICE_GCP_BUCKET_NAME}
     networks:
       - commerce-network
 
-  product_service_postgresql:
+  product-service-postgresql:
     image: 'bitnami/postgresql:latest'
-    container_name: '${PRODUCT_SERVICE_KEY}_postgresql'
+    container_name: '${PRODUCT_SERVICE_KEY}-postgresql'
     ports:
       - 127.0.0.1:${PRODUCT_SERVICE_DB_HOST_PORT}:${PRODUCT_SERVICE_DB_DOCKER_PORT}
     volumes:
-      - product_service_postgresql_vlm:/bitnami/postgresql
+      - product-service-postgresql-vlm:/bitnami/postgresql
     environment:
       - POSTGRESQL_USERNAME=${PRODUCT_SERVICE_DB_USER}
       - POSTGRESQL_PASSWORD=${PRODUCT_SERVICE_DB_PASS}
@@ -92,40 +93,40 @@ services:
     networks:
       - commerce-network
 
-  product_service_elasticsearch:
-    image: 'docker.elastic.co/elasticsearch/elasticsearch:8.8.0'
-    container_name: '${PRODUCT_SERVICE_KEY}_elasticsearch'
+  product-service-elasticsearch:
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION:-8.8.0}'
+    container_name: '${PRODUCT_SERVICE_KEY}-elasticsearch'
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - "${PRODUCT_ELASTICSEARCH_HOST_PORT:-9200}:9200"
+      - "${PRODUCT_ELASTICSEARCH_TRANSPORT_PORT:-9300}:9300"
     volumes:
-      - product_service_elasticsearch_vlm:/usr/share/elasticsearch/data
+      - product-service-elasticsearch-vlm:/usr/share/elasticsearch/data
     networks:
       - commerce-network
 
-  product_service_kibana:
-    image: 'docker.elastic.co/kibana/kibana:8.8.0'
-    container_name: '${PRODUCT_SERVICE_KEY}_kibana'
+  product-service-kibana:
+    image: 'docker.elastic.co/kibana/kibana:${KIBANA_VERSION:-8.8.0}'
+    container_name: '${PRODUCT_SERVICE_KEY}-kibana'
     environment:
-      - ELASTICSEARCH_HOSTS=http://product_service_elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=http://product-service-elasticsearch:9200
     ports:
-      - "5601:5601"
+      - "${PRODUCT_KIBANA_HOST_PORT:-5601}:5601"
     depends_on:
-      - product_service_elasticsearch
+      - product-service-elasticsearch
     networks:
       - commerce-network
 
-  product_gallery_service_postgresql:
+  product-gallery-service-postgresql:
     image: 'bitnami/postgresql:latest'
-    container_name: '${PRODUCT_GALLERY_SERVICE_KEY}_postgresql'
+    container_name: '${PRODUCT_GALLERY_SERVICE_KEY}-postgresql'
     ports:
       - 127.0.0.1:${PRODUCT_GALLERY_SERVICE_DB_HOST_PORT}:${PRODUCT_GALLERY_SERVICE_DB_DOCKER_PORT}
     volumes:
-      - product_gallery_service_postgresql_vlm:/bitnami/postgresql
+      - product-gallery-service-postgresql-vlm:/bitnami/postgresql
     environment:
       - POSTGRESQL_USERNAME=${PRODUCT_GALLERY_SERVICE_DB_USER}
       - POSTGRESQL_PASSWORD=${PRODUCT_GALLERY_SERVICE_DB_PASS}
@@ -134,50 +135,188 @@ services:
       - commerce-network
 
   zipkin:
-    image: openzipkin/zipkin:2.24
+    image: openzipkin/zipkin:${ZIPKIN_VERSION:-2.24}
     ports:
-      - "9411:9411"
+      - "${ZIPKIN_HOST_PORT:-9411}:9411"
     networks:
       - commerce-network
 
-
   loggingElasticsearch:
-    image: 'docker.elastic.co/elasticsearch/elasticsearch:8.8.0'
-    container_name: '${LOGGING_KEY}_elasticsearch'
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION:-8.8.0}'
+    container_name: '${LOGGING_KEY}-elasticsearch'
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
-      - "9201:9200"
-      - "9301:9300"
+      - "${LOGGING_ELASTICSEARCH_HOST_PORT:-9201}:9200"
+      - "${LOGGING_ELASTICSEARCH_TRANSPORT_PORT:-9301}:9300"
     volumes:
-      - logging_elasticsearch_vlm:/usr/share/elasticsearch/data
+      - logging-elasticsearch-vlm:/usr/share/elasticsearch/data
     networks:
       - commerce-network
 
-  logging_logstash:
-    image: 'docker.elastic.co/logstash/logstash:8.8.0'
-    container_name: '${LOGGING_KEY}_logstash'
+  logging-logstash:
+    image: 'docker.elastic.co/logstash/logstash:${LOGSTASH_VERSION:-8.8.0}'
+    container_name: '${LOGGING_KEY}-logstash'
     volumes:
       - ./monitoring/logstash/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
       - ./monitoring/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
     ports:
-      - "5000:5000"
+      - "${LOGSTASH_HOST_PORT:-5000}:5000"
     depends_on:
       - loggingElasticsearch
     networks:
       - commerce-network
 
-  logging_kibana:
-    image: 'docker.elastic.co/kibana/kibana:8.8.0'
-    container_name: '${LOGGING_KEY}_kibana'
+  logging-kibana:
+    image: 'docker.elastic.co/kibana/kibana:${KIBANA_VERSION:-8.8.0}'
+    container_name: '${LOGGING_KEY}-kibana'
     environment:
       - ELASTICSEARCH_HOSTS=http://loggingElasticsearch:9200
     ports:
-      - "5602:5601"
+      - "${LOGGING_KIBANA_HOST_PORT:-5602}:5601"
     depends_on:
-      - product_service_elasticsearch
+      - loggingElasticsearch
+    networks:
+      - commerce-network
+
+  # ALL Custom Services
+  discovery-service:
+    build:
+      context: ../discovery-service
+      dockerfile: Dockerfile
+    container_name: '${DISCOVERY_SERVICE_KEY}-service'
+    ports:
+      - "${DISCOVERY_SERVICE_HOST_PORT:-8761}:${DISCOVERY_SERVICE_DOCKER_PORT:-8761}"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - EUREKA_URI=http://discovery-service:${DISCOVERY_SERVICE_DOCKER_PORT:-8761}/eureka/
+    networks:
+      - commerce-network
+
+  gateway-service:
+    build:
+      context: ../gateway-service
+      dockerfile: Dockerfile
+    container_name: '${GATEWAY_SERVICE_KEY}-service'
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - EUREKA_URI=http://discovery-service:${DISCOVERY_SERVICE_DOCKER_PORT:-8761}/eureka/
+      - ZIPKIN_HOST=${ZIPKIN_HOST:-zipkin}
+      - ZIPKIN_PORT=${ZIPKIN_PORT:-9411}
+    depends_on:
+      - discovery-service
+    networks:
+      - commerce-network
+
+  auth-service:
+    build:
+      context: ../auth-service
+      dockerfile: Dockerfile
+    container_name: '${AUTH_SERVICE_KEY}-service'
+    ports:
+      - "${AUTH_SERVICE_HOST_PORT:-9091}:${AUTH_SERVICE_DOCKER_PORT:-9091}"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - SPRING_DATA_REDIS_HOST=auth-service-redis
+      - SPRING_DATA_REDIS_PORT=${AUTH_SERVICE_REDIS_DOCKER_PORT}
+      - SPRING_DATA_REDIS_PASSWORD=${AUTH_SERVICE_REDIS_PASS}
+    depends_on:
+      - discovery-service
+      - auth-service-redis
+    networks:
+      - commerce-network
+
+  user-service:
+    build:
+      context: ../user-service
+      dockerfile: Dockerfile
+    container_name: '${USER_SERVICE_KEY}-service'
+    ports:
+      - "${USER_SERVICE_HOST_PORT:-9090}:${USER_SERVICE_DOCKER_PORT:-9090}"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://user-service-postgresql:${USER_SERVICE_DB_DOCKER_PORT}/${USER_SERVICE_DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${USER_SERVICE_DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${USER_SERVICE_DB_PASS}
+    depends_on:
+      - discovery-service
+      - user-service-postgresql
+    networks:
+      - commerce-network
+
+  file-service:
+    build:
+      context: ../file-service
+      dockerfile: Dockerfile
+    container_name: '${FILE_SERVICE_KEY}-service'
+    ports:
+      - "${FILE_SERVICE_HOST_PORT:-9092}:${FILE_SERVICE_DOCKER_PORT:-9092}"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - SPRING_DATA_MONGODB_URI=mongodb://file-service-mongodb:${FILE_SERVICE_DB_DOCKER_PORT}/${FILE_SERVICE_DB_NAME}
+    depends_on:
+      - discovery-service
+      - file-service-mongodb
+    networks:
+      - commerce-network
+
+  media-service:
+    build:
+      context: ../media-service
+      dockerfile: Dockerfile
+    container_name: '${MEDIA_SERVICE_KEY}-service'
+    ports:
+      - "${MEDIA_SERVICE_HOST_PORT:-9093}:${MEDIA_SERVICE_DOCKER_PORT:-9093}"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://media-service-postgresql:${MEDIA_SERVICE_DB_DOCKER_PORT}/${MEDIA_SERVICE_DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${MEDIA_SERVICE_DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${MEDIA_SERVICE_DB_PASS}
+    depends_on:
+      - discovery-service
+      - media-service-postgresql
+    networks:
+      - commerce-network
+
+  product-service:
+    build:
+      context: ../product-service
+      dockerfile: Dockerfile
+    container_name: '${PRODUCT_SERVICE_KEY}-service'
+    ports:
+      - "${PRODUCT_SERVICE_HOST_PORT:-9094}:${PRODUCT_SERVICE_DOCKER_PORT:-9094}"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://product-service-postgresql:${PRODUCT_SERVICE_DB_DOCKER_PORT}/${PRODUCT_SERVICE_DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${PRODUCT_SERVICE_DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${PRODUCT_SERVICE_DB_PASS}
+      - SPRING_ELASTICSEARCH_URIS=http://product-service-elasticsearch:9200
+    depends_on:
+      - discovery-service
+      - product-service-postgresql
+      - product-service-elasticsearch
+    networks:
+      - commerce-network
+
+  product-gallery-service:
+    build:
+      context: ../product-gallery-service
+      dockerfile: Dockerfile
+    container_name: '${PRODUCT_GALLERY_SERVICE_KEY}-service'
+    ports:
+      - "${PRODUCT_GALLERY_SERVICE_HOST_PORT:-9095}:${PRODUCT_GALLERY_SERVICE_DOCKER_PORT:-9095}"
+    environment:
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://product-gallery-service-postgresql:${PRODUCT_GALLERY_SERVICE_DB_DOCKER_PORT}/${PRODUCT_GALLERY_SERVICE_DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${PRODUCT_GALLERY_SERVICE_DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${PRODUCT_GALLERY_SERVICE_DB_PASS}
+    depends_on:
+      - discovery-service
+      - product-gallery-service-postgresql
     networks:
       - commerce-network
 
