@@ -1,10 +1,12 @@
 package com.trkgrn.mediaservice.model
 
 import com.trkgrn.mediaservice.model.abstracts.Base
+import com.trkgrn.mediaservice.model.listener.MediaContainerEntityListener
 import jakarta.persistence.*
 
 @Entity
 @Table(schema = "public", name = "media_containers")
+@EntityListeners(MediaContainerEntityListener::class)
 class MediaContainer @JvmOverloads constructor (
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "media_container")

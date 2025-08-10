@@ -155,4 +155,49 @@ public class ProductGalleryServiceImpl implements ProductGalleryService {
                 .toList();
     }
 
+    @Override
+    public void deleteByBaseProductId(Long baseProductId) {
+        List<ProductGallery> galleries = productGalleryRepository.findAllByProductId(baseProductId);
+        if (galleries.isEmpty()) {
+            log.warning("No galleries found for base product with id: " + baseProductId);
+            return;
+        }
+        try {
+            productGalleryRepository.deleteAll(galleries);
+        } catch (Exception e) {
+            log.severe("Product galleries not deleted for base product id " + baseProductId + ": " + e.getMessage());
+            throw new NotDeletedException(Localization.getLocalizedMessage(MessageConstants.PRODUCT_GALLERY_NOT_DELETED));
+        }
+    }
+
+    @Override
+    public void deleteByVariantProductId(Long variantProductId) {
+        List<ProductGallery> galleries = productGalleryRepository.findAllByVariantProductId(variantProductId);
+        if (galleries.isEmpty()) {
+            log.warning("No galleries found for variant product with id: " + variantProductId);
+            return;
+        }
+        try {
+            productGalleryRepository.deleteAll(galleries);
+        } catch (Exception e) {
+            log.severe("Product galleries not deleted for variant product id " + variantProductId + ": " + e.getMessage());
+            throw new NotDeletedException(Localization.getLocalizedMessage(MessageConstants.PRODUCT_GALLERY_NOT_DELETED));
+        }
+    }
+
+    @Override
+    public void deleteByMediaContainerId(Long mediaContainerId) {
+        List<ProductGallery> galleries = productGalleryRepository.findAllByMediaContainerId(mediaContainerId);
+        if (galleries.isEmpty()) {
+            log.warning("No galleries found for media container with id: " + mediaContainerId);
+            return;
+        }
+        try {
+            productGalleryRepository.deleteAll(galleries);
+        } catch (Exception e) {
+            log.severe("Product galleries not deleted for media container id " + mediaContainerId + ": " + e.getMessage());
+            throw new NotDeletedException(Localization.getLocalizedMessage(MessageConstants.PRODUCT_GALLERY_NOT_DELETED));
+        }
+    }
+
 }

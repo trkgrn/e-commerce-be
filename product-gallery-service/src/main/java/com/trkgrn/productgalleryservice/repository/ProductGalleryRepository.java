@@ -8,4 +8,5 @@ import java.util.List;
 public interface ProductGalleryRepository extends JpaRepository<ProductGallery, Long> {
     List<ProductGallery> findAllByProductId(Long productId);
     List<ProductGallery> findAllByVariantProductId(Long variantProductId);
+    List<ProductGallery> findAllByMediaContainerId(Long mediaContainerId);
 }

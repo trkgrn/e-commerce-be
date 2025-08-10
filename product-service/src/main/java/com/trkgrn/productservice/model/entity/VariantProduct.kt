@@ -1,10 +1,12 @@
 package com.trkgrn.productservice.model.entity
 
 import com.trkgrn.productservice.model.entity.abstracts.AbstractProduct
+import com.trkgrn.productservice.model.entity.listener.VariantProductEntityListener
 import jakarta.persistence.*
 
 @Entity
 @Table(schema = "public", name = "variant_products")
+@EntityListeners(VariantProductEntityListener::class)
 class VariantProduct @JvmOverloads constructor(
     @Id
     @Column(name = "id")

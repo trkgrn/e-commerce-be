@@ -36,8 +36,8 @@ public class FeignConfig {
     @Bean
     public RequestInterceptor requestInterceptor() {
         return template -> {
-            String correlationId = getCorrelationId();
-            String traceId = getTraceId();
+            String correlationId = TracingUtils.getCorrelationIdWithMDC();
+            String traceId = TracingUtils.extractTraceId(tracer, tracing);
 
             if (Objects.nonNull(correlationId)) {
                 template.header(X_CORRELATION_ID, correlationId);
@@ -57,24 +57,6 @@ public class FeignConfig {
             logger.debug("Feign request intercepted - correlationId: {}, traceId: {}, target: {}",
                     correlationId, traceId, template.feignTarget());
         };
-    }
-
-    private String getCorrelationId() {
-        String correlationId = MDC.get(CORRELATION_ID);
-        if (Objects.nonNull(correlationId)) {
-            return correlationId;
-        }
-
-        return TracingUtils.getCurrentRequestCorrelationId();
-    }
-
-    private String getTraceId() {
-        String traceId = MDC.get(TRACE_ID);
-        if (Objects.nonNull(traceId)) {
-            return traceId;
-        }
-
-        return TracingUtils.extractTraceId(tracer, tracing);
     }
 
 }

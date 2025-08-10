@@ -1,0 +1,15 @@
+{
+  "type": "record",
+  "name": "ProductDeletedEvent",
+  "namespace": "com.trkgrn.common.avro",
+  "fields": [
+    {
+      "name": "metadata",
+      "type": "com.trkgrn.common.avro.EventMetadata"
+    },
+    {
+      "name": "productId",
+      "type": "long"
+    }
+  ]
+}

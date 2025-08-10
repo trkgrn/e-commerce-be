@@ -17,4 +17,7 @@ public interface ProductGalleryService {
     List<ProductGalleryDto> getAllByBaseProductId(Long baseProductId);
     VariantProductGalleryDto createForVariantProduct(Long variantProductId, CreateVariantProductGalleryRequest request);
     List<VariantProductGalleryDto> getAllByVariantProductId(Long variantProductId);
+    void deleteByBaseProductId(Long baseProductId);
+    void deleteByVariantProductId(Long variantProductId);
+    void deleteByMediaContainerId(Long mediaContainerId);
 }

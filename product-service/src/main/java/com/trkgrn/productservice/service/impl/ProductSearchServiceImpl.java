@@ -54,9 +54,9 @@ public class ProductSearchServiceImpl implements ProductSearchService {
     }
 
     private List<String> buildSuggestions(SearchHits<ProductIndex> searchSuggestions) {
-        List<String> suggestions = new ArrayList<>();
+        Set<String> suggestions = new HashSet<>();
         searchSuggestions.getSearchHits().forEach(searchHit -> suggestions.add(searchHit.getContent().getName()));
-        return suggestions;
+        return suggestions.stream().toList();
     }
 
     private PaginationDto buildPagination(Pageable pageable, SearchHits<ProductIndex> searchHits) {

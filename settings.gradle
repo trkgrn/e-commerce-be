@@ -9,5 +9,5 @@ include 'file-service'
 include 'media-service'
 include 'product-service'
 include 'product-gallery-service'
-
+include 'kafka-service'
 

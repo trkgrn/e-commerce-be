@@ -30,4 +30,10 @@ public class ProductGalleryController {
         return ResponseEntity.ok(new SuccessDataResult<>(Localization.getLocalizedMessage(MessageConstants.PRODUCT_GALLERY_DELETED_SUCCESSFULLY)));
     }
 
+    @DeleteMapping("/media-container/{mediaContainerId}")
+    public ResponseEntity<Result> deleteByMediaContainerId(@PathVariable Long mediaContainerId) {
+        productGalleryService.deleteByMediaContainerId(mediaContainerId);
+        return ResponseEntity.ok(new SuccessDataResult<>(Localization.getLocalizedMessage(MessageConstants.PRODUCT_GALLERY_DELETED_SUCCESSFULLY)));
+    }
+
 }

@@ -6,6 +6,7 @@ import feign.RequestTemplate;
 import io.micrometer.tracing.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -14,6 +15,8 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 
 import static com.trkgrn.common.constants.Headers.*;
+import static com.trkgrn.common.constants.TracingConstants.CORRELATION_ID;
+import static com.trkgrn.common.constants.TracingConstants.TRACE_ID;
 
 public final class TracingUtils {
 
@@ -78,4 +81,23 @@ public final class TracingUtils {
         }
         return null;
     }
+
+    public static String getCorrelationIdWithMDC() {
+        String correlationId = MDC.get(CORRELATION_ID);
+        if (Objects.nonNull(correlationId)) {
+            return correlationId;
+        }
+
+        return TracingUtils.getCurrentRequestCorrelationId();
+    }
+
+    public static String getTraceIdWithMDC(Tracer tracer, Tracing tracing) {
+        String traceId = MDC.get(TRACE_ID);
+        if (Objects.nonNull(traceId)) {
+            return traceId;
+        }
+
+        return TracingUtils.extractTraceId(tracer, tracing);
+    }
+
 }

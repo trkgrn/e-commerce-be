@@ -7,12 +7,16 @@ import com.trkgrn.common.model.result.SuccessDataResult;
 import com.trkgrn.common.utils.Localization;
 import com.trkgrn.productservice.constants.MessageConstants;
 import com.trkgrn.productservice.service.ProductService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1/products")
 public class ProductController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
 
     private final ProductService productService;
 
@@ -23,6 +27,7 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<Result> getAll(@RequestParam(defaultValue = "0") int page,
                                          @RequestParam(defaultValue = "10") int size) {
+        logger.info("Fetching all products with pagination - page: {}, size: {}", page, size);
         return ResponseEntity.ok(new SuccessDataResult<>(productService.getAllWithPagination(page, size),
                 Localization.getLocalizedMessage(MessageConstants.PRODUCT_FETCHED_SUCCESSFULLY)));
     }

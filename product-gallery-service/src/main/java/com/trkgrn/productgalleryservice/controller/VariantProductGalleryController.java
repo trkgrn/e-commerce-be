@@ -31,4 +31,10 @@ public class VariantProductGalleryController {
                 Localization.getLocalizedMessage(MessageConstants.PRODUCT_GALLERY_FETCHED_SUCCESSFULLY)));
     }
 
+    @DeleteMapping("/{id}/galleries")
+    public ResponseEntity<Result> deleteByVariantProductId(@PathVariable Long id) {
+        productGalleryService.deleteByVariantProductId(id);
+        return ResponseEntity.ok(new SuccessDataResult<>(Localization.getLocalizedMessage(MessageConstants.PRODUCT_GALLERY_DELETED_SUCCESSFULLY)));
+    }
+
 }

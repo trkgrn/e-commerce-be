@@ -31,4 +31,10 @@ public class BaseProductGalleryController {
                 Localization.getLocalizedMessage(MessageConstants.PRODUCT_GALLERY_FETCHED_SUCCESSFULLY)));
     }
 
+    @DeleteMapping("/{id}/galleries")
+    public ResponseEntity<Result> deleteByBaseProductId(@PathVariable Long id) {
+        productGalleryService.deleteByBaseProductId(id);
+        return ResponseEntity.ok(new SuccessDataResult<>(Localization.getLocalizedMessage(MessageConstants.PRODUCT_GALLERY_DELETED_SUCCESSFULLY)));
+    }
+
 }

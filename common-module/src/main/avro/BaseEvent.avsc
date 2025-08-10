@@ -1,0 +1,22 @@
+{
+  "type": "record",
+  "name": "BaseEvent",
+  "namespace": "com.trkgrn.common.avro",
+  "fields": [
+    {
+      "name": "metadata",
+      "type": {
+        "type": "record",
+        "name": "EventMetadata",
+        "fields": [
+          { "name": "traceId", "type": "string" },
+          { "name": "correlationId", "type": "string" },
+          { "name": "timestamp", "type": "long" },
+          { "name": "eventId", "type": "string" },
+          { "name": "eventVersion", "type": "string", "default": "1.0" },
+          { "name": "source", "type": "string" }
+        ]
+      }
+    }
+  ]
+}
